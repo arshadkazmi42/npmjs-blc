@@ -5,7 +5,7 @@ import time
 from random import randrange
 
 
-DEBUG = True
+DEBUG = False
 
 
 
@@ -28,19 +28,6 @@ def _get_url_param():
     return args[1]
 
 
-def _check_rate_limit(response):
-    if response.status_code == 403:
-        if 'X-RateLimit-Reset' in response.headers:
-            reset_time = int(response.headers['X-RateLimit-Reset'])
-            current_time = int(time.time())
-            sleep_time = reset_time - current_time + 1
-            _print(f'\n\nGitHub Search API rate limit reached. Sleeping for {sleep_time} seconds.\n\n')
-            time.sleep(sleep_time)
-            return True
-    
-    return False
-
-
 def _get_url_result(url):
 
     response = requests.get(url)
@@ -49,6 +36,8 @@ def _get_url_result(url):
         _print(url)
         _print(f'Failed with error code {response.status_code}')
         _print(str(response.headers))
+        if response.status_code == 404:
+            print(f'{url} => {response.status_code}')
         
     return response.status_code
 
